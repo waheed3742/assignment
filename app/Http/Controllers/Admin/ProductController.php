@@ -79,7 +79,6 @@ class ProductController extends Controller
         if (!$product) {
             return response()->json(['success' => false, 'message' => 'Product not found'], 404);
         }
-
         $product->name = $request->name;
         $product->price = $request->price;
         $product->description = $request->description;
@@ -88,13 +87,24 @@ class ProductController extends Controller
         $product->categories()->sync($request->categories);
 
         if ($request->hasFile('images')) {
+
             $product->images->each(function ($image) {
                 Storage::delete('public/' . $image->image_path);
                 $image->delete();
             });
 
             foreach ($request->file('images') as $image) {
-                $imagePath = $image->store('products', 'public');
+                $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
+
+                $manager = new ImageManager(new Driver());
+                $img = $manager->read($image);
+                $img->resize(800, 800);
+                $img = $img->toJpeg(80);
+
+                $imagePath = 'products/' . $imageName;
+
+                $img->save(storage_path('app/public/' . $imagePath));
+
                 ProductImage::create([
                     'product_id' => $product->id,
                     'image_path' => $imagePath,
@@ -119,7 +129,7 @@ class ProductController extends Controller
     
             $imagePath = storage_path('app/public/' . $image->image_path);
             if (file_exists($imagePath)) {
-                unlink($imagePath);
+                Storage::delete('public/' . $image->image_path);
             }
         }
     

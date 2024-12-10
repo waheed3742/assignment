@@ -55,7 +55,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <label for="categories" class="form-label">Assign Categories</label>
-                                        <select class="form-select" id="categories" name="categories[]" multiple required>
+                                        <select class="form-select js-select2 select2-hidden-accessible" id="categories" name="categories[]" multiple required>
                                             @foreach($categories as $category)
                                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
                                             @endforeach
@@ -110,7 +110,7 @@
 
                                     <div class="mb-3">
                                         <label for="editCategories" class="form-label">Categories</label>
-                                        <select class="form-control" id="editCategories" name="categories[]" multiple>
+                                        <select class="form-select js-select2 select2-hidden-accessible" id="editCategories" name="categories[]" multiple>
                                             @foreach($categories as $category)
                                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
                                             @endforeach
@@ -223,12 +223,12 @@
                         $('#editProductPrice').val(product.price);
                         $('#editProductDescription').val(product.description);
 
-                        var selectedCategories = response.product.categories.map(function(category) {
+                        var selectedCategories = product.categories.map(function(category) {
                             return category.id;
                         });
 
                         $('#editCategories').val(selectedCategories).trigger('change');
-
+                        
                         let imagePreviews = '';
                         product.images.forEach(image => {
                             imagePreviews += `<img src="/storage/${image.image_path}" width="50" height="50" class="img-thumbnail">`;
@@ -269,40 +269,7 @@
                 }
             });
         });
-
-        // $(document).on('click', '.edit-btn', function () {
-        //     var categoryId = $(this).data('id');
-        //     if (categoryId) {
-        //         $.ajax({
-        //             url: `{{ route('admin.categories.edit', ':id') }}`.replace(':id', categoryId),
-        //             type: 'GET',
-        //             success: function (response) {
-        //                 if (response.status === true) {
-        //                     $('#addProductModalLabel').text('Edit Category');
-        //                     $('#categoryName').val(response.category.name);
-        //                     $('#category_id').val(response.category.id);
-        //                     $('#form_mode').val('edit');
-        //                     $('#addProductModal').modal('show'); 
-        //                 } else {
-        //                     alert(response.message)
-        //                 }
-        //             },
-        //             error: function () {
-        //                 alert('Error fetching category.');
-        //             }
-        //         });
-        //     }
-        // });
-            function clearModal() {
-            $('#categoryName').val('');
-            $('#nameError').text('');
-            $('#category_id').val('');
-            $('#form_mode').val('add');
-            $('#submitButton').text('Add Category');
-        }
-        $('#addProductModal').on('hidden.bs.modal', function () {
-            clearModal();
-        });
+        
     });
 
     function loadProducts() {
