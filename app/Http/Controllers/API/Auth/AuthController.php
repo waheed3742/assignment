@@ -39,7 +39,7 @@ class AuthController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $token = $user->createToken('assignment')->plainTextToken;
+        $token = $user->createToken('login')->plainTextToken;
 
         return response()->json([
             'user' => new UserResource($user),

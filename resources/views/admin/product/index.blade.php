@@ -66,9 +66,10 @@
                                         <label for="productImages" class="form-label">Product Images</label>
                                         <input type="file" class="form-control" id="productImages" name="images[]" multiple>
                                         <span id="productImagesError" class="text-danger"></span>
+                                        <div id="imagePreviewContainer" class="mt-3 row"></div>
                                     </div>
                                     <input type="hidden" name="product_id" id="product_id">
-                                    <input type="hidden" name="form_mode" id="form_mode" value="add"> <!-- To differentiate between Add and Edit -->
+                                    <input type="hidden" name="form_mode" id="form_mode" value="add">
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                         <button type="submit" class="btn btn-primary">Save Product</button>
@@ -80,7 +81,6 @@
                 </div>
                 <!-- Modal for Add Products ends here-->
                 {{-- Modal for edit the product  --}}
-                <!-- Edit Product Modal -->
                 <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -122,7 +122,7 @@
                                         <input type="file" class="form-control" id="editProductImages" name="images[]" multiple>
                                     </div>
 
-                                    <div id="imagePreviews" class="mb-3"></div>
+                                    <div id="imagePreviews" class="row mb-3"></div>
 
                                     <button type="submit" class="btn btn-primary">Update Product</button>
                                 </form>
@@ -231,7 +231,9 @@
                         
                         let imagePreviews = '';
                         product.images.forEach(image => {
-                            imagePreviews += `<img src="/storage/${image.image_path}" width="50" height="50" class="img-thumbnail">`;
+                            imagePreviews += ` <div class="col-md-6 mb-3">
+                                <img src="/storage/${image.image_path}" width="100%" class="img-thumbnail">
+                            </div>`;
                         });
                         $('#imagePreviews').html(imagePreviews);
 
@@ -269,7 +271,29 @@
                 }
             });
         });
-        
+        $('#productImages').on('change', function (event) {
+            const files = event.target.files;
+            const previewContainer = $('#imagePreviewContainer');
+            
+            previewContainer.html('');
+
+            if (files.length > 0) {
+                $.each(files, function (index, file) {
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        const imgHtml = `
+                            <div class="col-md-3 mb-3">
+                                <img src="${e.target.result}" class="img-thumbnail" style="width: 100%; height: 100px; object-fit: cover;">
+                            </div>
+                        `;
+                        previewContainer.append(imgHtml);
+                    };
+
+                    reader.readAsDataURL(file);
+                });
+            }
+        });
     });
 
     function loadProducts() {
@@ -302,8 +326,8 @@
                         { data: 'price' },
                         { data: 'description' },
                         { data: 'categories' },
-                        { data: 'images', renderer: Handsontable.renderers.HtmlRenderer },
-                        { data: 'actions', renderer: Handsontable.renderers.HtmlRenderer }
+                        { data: 'images', renderer: Handsontable.renderers.HtmlRenderer , readOnly: true },
+                        { data: 'actions', renderer: Handsontable.renderers.HtmlRenderer , readOnly: true }
                     ],
                         rowHeaders: true,
                         stretchH: 'all',

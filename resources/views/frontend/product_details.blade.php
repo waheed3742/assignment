@@ -2,6 +2,21 @@
 
 @section('content')
     <div class="container my-5">
+                    @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show">{{session('error')}}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+                    @endif
+                    @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show">{{session('success')}}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+                    @endif
+                    @if ($errors->any())
+                        <div class="alert alert-fill alert-danger alert-icon">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
         <div class="row">
             <div class="col-md-6">
                 <div id="productCarousel" class="carousel slide" data-ride="carousel">
@@ -72,13 +87,12 @@
                             <small>{{ $feedback->created_at->diffForHumans() }}</small>
                         </div>
                     @endforeach
-
                     <form action="{{ route('product.storeFeedback', $product->slug) }}" method="POST">
                         @csrf
                         <div class="form-group">
                             <label for="rating">Rating</label>
                             <div class="star-rating">
-                                <input type="radio" id="star5" name="rating" value="5" class="star" required><label for="star5" class="star">&#9733;</label>
+                                <input type="radio" id="star5" name="rating" value="5" class="star"><label for="star5" class="star">&#9733;</label>
                                 <input type="radio" id="star4" name="rating" value="4" class="star"><label for="star4" class="star">&#9733;</label>
                                 <input type="radio" id="star3" name="rating" value="3" class="star"><label for="star3" class="star">&#9733;</label>
                                 <input type="radio" id="star2" name="rating" value="2" class="star"><label for="star2" class="star">&#9733;</label>

@@ -300,7 +300,7 @@
                         colHeaders: ['Category Name', 'Actions'],
                         columns: [
                             { data: 'name' },
-                            { data: 'actions', renderer: Handsontable.renderers.HtmlRenderer }
+                            { data: 'actions', renderer: Handsontable.renderers.HtmlRenderer, readOnly: true }
                         ],
                         rowHeaders: true,
                         stretchH: 'all',
