@@ -24,33 +24,16 @@
         <body class="nk-body bg-lighter npc-general has-sidebar ">
             <div class="nk-app-root">
                 <div class="nk-main ">
-                    @include('admin.partials.sidebar')
+                    @include('admin.layouts.partials.sidebar')
                 <div class="nk-wrap">
-                    @include('admin.partials.header')
+                    @include('admin.layouts.partials.header')
 
                     @yield('content')
 
-                    @include('admin.partials.footer')
+                    @include('admin.layouts.partials.footer')
                 </div>
                 </div>
             </div>
-        {{-- <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
-
-            <!-- Page Heading -->
-            @if (isset($header))
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endif
-
-            <!-- Page Content -->
-            <main>
-                @yield('content')
-            </main>
-        </div> --}}
         <script src="{{asset('assets/js/bundle.js?ver=3.2.3') }}"></script>
         <script src="{{asset('assets/js/scripts.js?ver=3.2.3') }}"></script>
         <script src="{{asset('assets/js/charts/chart-ecommerce.js?ver=3.2.3') }}"></script>

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layouts.app')
 @section('content')
 <div class="nk-content">
     <div class="container-fluid">
@@ -69,7 +69,6 @@
                                         <div id="imagePreviewContainer" class="mt-3 row"></div>
                                     </div>
                                     <input type="hidden" name="product_id" id="product_id">
-                                    <input type="hidden" name="form_mode" id="form_mode" value="add">
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                         <button type="submit" class="btn btn-primary">Save Product</button>
@@ -140,48 +139,57 @@
     $(document).ready(function () {
         loadProducts();
 
-        $('#addProductForm').on('submit', function(e) {
-            e.preventDefault();
-            
-            $('#productNameError').text('');
-            $('#productPriceError').text('');
-            $('#categoriesError').text('');
-            $('#productImagesError').text('');
-            
-            var formData = new FormData(this);
+        function handleProductFormSubmit(formId, isEdit = false) {
+            $(formId).on('submit', function (e) {
+                e.preventDefault();
 
-            $.ajax({
-                url: '{{ route("admin.products.store") }}',
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function(response) {
-                    if (response.success) {
-                        alert(response.message);
-                        $('#addProductModal').modal('hide');
-                        $('#addProductForm')[0].reset();
-                        loadProducts();
+                const submitButton = $(this).find('button[type="submit"]');
+                submitButton.prop('disabled', true).text(isEdit ? 'Updating...' : 'Saving...');
+
+                $('.text-danger').text('');
+
+                const formData = new FormData(this);
+                const url = isEdit
+                    ? `{{ route('admin.products.update', ':id') }}`.replace(':id', $('#editProductId').val())
+                    : '{{ route("admin.products.store") }}';
+                const method = 'POST';
+
+                $.ajax({
+                    url: url,
+                    type: method,
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            $(formId)[0].reset();
+                            $(isEdit ? '#editProductModal' : '#addProductModal').modal('hide');
+                            loadProducts();
+                        }
+                    },
+                    error: function (xhr) {
+                        const errors = xhr.responseJSON?.errors || {};
+
+                        for (const field in errors) {
+                            $(`#${field}Error`).text(errors[field][0]);
+                        }
+
+                        if (xhr.responseJSON?.message) {
+                            alert(xhr.responseJSON.message);
+                        }
+                    },
+                    complete: function () {
+                        submitButton.prop('disabled', false).text(isEdit ? 'Update Product' : 'Save Product');
                     }
-                },
-                error: function(xhr) {
-                    var errors = xhr.responseJSON.errors;
-                    if (errors.name) {
-                        $('#productNameError').text(errors.name[0]);
-                    }
-                    if (errors.price) {
-                        $('#productPriceError').text(errors.price[0]);
-                    }
-                    if (errors.categories) {
-                        $('#categoriesError').text(errors.categories[0]);
-                    }
-                    if (errors.images) {
-                        $('#productImagesError').text(errors.images[0]);
-                    }
-                }
+                });
             });
-        });
+        }
 
+        $(document).ready(function () {
+            handleProductFormSubmit('#addProductForm');        
+            handleProductFormSubmit('#editProductForm', true);
+        });
 
         $(document).on('click', '.delete-btn', function() {
             const productId = $(this).data('id');
@@ -207,6 +215,7 @@
                 });
             }
         });
+
         $(document).on('click', '.edit-btn', function() {
             const productId = $(this).data('id');
 
@@ -245,36 +254,11 @@
                 }
             });
         });
-        // Handling form submission for product update
-        $('#editProductForm').on('submit', function(event) {
-            event.preventDefault();
 
-            const formData = new FormData(this);
-            const productId = $('#editProductId').val();
-            $.ajax({
-                url: `{{ route('admin.products.update', ':id') }}`.replace(':id', productId),
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    if (response.success) {
-                        alert(response.message);
-                        $('#editProductModal').modal('hide');
-                        loadProducts();
-                    } else {
-                        alert('Failed to update product');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    alert('Error updating product');
-                }
-            });
-        });
         $('#productImages').on('change', function (event) {
             const files = event.target.files;
             const previewContainer = $('#imagePreviewContainer');
-            
+
             previewContainer.html('');
 
             if (files.length > 0) {
@@ -317,25 +301,27 @@
                 const container = $('#productTable')[0];
                 if (window.hot) {
                     window.hot.loadData(data);
-                } else {
+
+                    return;
+                } 
                     window.hot = new Handsontable(container, {
                         data: data,
                         colHeaders: ['Product Name','Price','Description','Categories', 'Product Images', 'Actions'],
                         columns: [
-                        { data: 'name' },
-                        { data: 'price' },
-                        { data: 'description' },
-                        { data: 'categories' },
-                        { data: 'images', renderer: Handsontable.renderers.HtmlRenderer , readOnly: true },
-                        { data: 'actions', renderer: Handsontable.renderers.HtmlRenderer , readOnly: true }
-                    ],
+                            { data: 'name' },
+                            { data: 'price' },
+                            { data: 'description' },
+                            { data: 'categories' },
+                            { data: 'images', renderer: Handsontable.renderers.HtmlRenderer , readOnly: true },
+                            { data: 'actions', renderer: Handsontable.renderers.HtmlRenderer , readOnly: true }
+                        ],
                         rowHeaders: true,
                         stretchH: 'all',
                         height: 400,
                         width: '100%',
                         licenseKey: 'non-commercial-and-evaluation'
                     });
-                }
+                
             }
         });
     }
