@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ProductCommentController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductFeedbackController;
 use App\Http\Controllers\Front\FrontendController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -21,11 +24,9 @@ Route::get('/', [FrontendController::class, 'index'])->name('home');
 Route::get('/category/{slug}', [FrontendController::class, 'showCategoryProducts'])->name('category.products');
 Route::get('product/{slug}', [FrontendController::class, 'showProductDetails'])->name('product.details');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -44,8 +45,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/products/update/{id}', [ProductController::class, 'update'])->name('admin.products.update');
     Route::delete('/admin/products/{id}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
 
-    Route::post('/product/{id}/comment', [ProductController::class, 'storeComment'])->name('product.storeComment');
-    Route::post('/product/{id}/feedback', [ProductController::class, 'storeFeedback'])->name('product.storeFeedback');
+    Route::post('/product/{id}/comment', [ProductCommentController::class, 'storeComment'])->name('product.storeComment');
+    Route::post('/product/{id}/feedback', [ProductFeedbackController::class, 'storeFeedback'])->name('product.storeFeedback');
 });
 
 require __DIR__.'/auth.php';
